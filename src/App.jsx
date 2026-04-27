@@ -17,7 +17,7 @@ function haptic(pattern = 12) {
 
 const USERS = [
   { id: "santiago", name: "Santiago", emoji: "🌙", accent: "lilac" },
-  { id: "nicol", name: "Nicole Profa", emoji: "🌸", accent: "rose" },
+  { id: "nicol", name: "Nicole", emoji: "🌸", accent: "rose" },
 ];
 
 export default function App() {
