@@ -4,6 +4,7 @@ import { deviceId, firebaseEnabled } from "./firebase";
 import UserColumn from "./components/UserColumn";
 import PrizesCatalog from "./components/PrizesCatalog";
 import RedeemModal from "./components/RedeemModal";
+import RulesModal from "./components/RulesModal";
 import HistoryPanel from "./components/HistoryPanel";
 
 function haptic(pattern = 12) {
@@ -16,13 +17,14 @@ function haptic(pattern = 12) {
 
 const USERS = [
   { id: "santiago", name: "Santiago", emoji: "🌙", accent: "lilac" },
-  { id: "nicol", name: "Nicol", emoji: "🌸", accent: "rose" },
+  { id: "nicol", name: "Nicole Profa", emoji: "🌸", accent: "rose" },
 ];
 
 export default function App() {
   const users = USERS;
   const { points, history, persist, status, lastUpdatedBy } = useCoupleState();
   const [pendingPrize, setPendingPrize] = useState(null);
+  const [showRules, setShowRules] = useState(false);
   const [toast, setToast] = useState(null);
 
   const userName = (id) => users.find((u) => u.id === id)?.name ?? "";
@@ -128,7 +130,11 @@ export default function App() {
     <div className="min-h-screen px-4 py-5 sm:px-6 sm:py-8 lg:px-10 relative">
       <AuroraBackground />
       <div className="max-w-6xl mx-auto flex flex-col gap-5 sm:gap-6 relative">
-        <Header onReset={resetAll} status={status} />
+        <Header
+          onReset={resetAll}
+          onShowRules={() => setShowRules(true)}
+          status={status}
+        />
 
         <main className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           {users.map((u) => (
@@ -165,6 +171,8 @@ export default function App() {
         />
       )}
 
+      {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+
       {toast && <Toast toast={toast} />}
     </div>
   );
@@ -181,7 +189,7 @@ function AuroraBackground() {
   );
 }
 
-function Header({ onReset, status }) {
+function Header({ onReset, onShowRules, status }) {
   return (
     <header className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3 min-w-0">
@@ -193,13 +201,21 @@ function Header({ onReset, status }) {
             Adventure Mode
           </h1>
           <p className="text-[11px] sm:text-xs text-ink-200/60">
-            Santiago &amp; Nicol · modo aventura activado
+            Santiago &amp; Nicole · modo aventura activado
           </p>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         <SyncBadge status={status} />
+        <button
+          onClick={onShowRules}
+          className="btn btn-ghost text-sm px-3 py-2 min-h-[40px]"
+          title="Ver guía de puntos"
+        >
+          <span aria-hidden>📖</span>
+          <span className="hidden sm:inline">Guía</span>
+        </button>
         <button
           onClick={onReset}
           className="btn btn-ghost text-sm px-3 py-2 min-h-[40px]"
