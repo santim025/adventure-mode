@@ -189,6 +189,48 @@
   }
 }
 
+/* ---------- Catch Hearts mini-game ---------- */
+.heart-float {
+  bottom: 0;
+  animation-name: heart-float-up;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@keyframes heart-float-up {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.4);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+    transform: translate3d(
+        calc(var(--heart-drift, 0px) * 0.25),
+        -18vh,
+        0
+      )
+      scale(1);
+  }
+  85% {
+    opacity: 1;
+    transform: translate3d(var(--heart-drift, 0px), -88vh, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--heart-drift, 0px), -110vh, 0) scale(0.85);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heart-float {
+    animation-duration: 4s !important;
+  }
+}
+
 /* thin scrollbar for history */
 .scroll-thin::-webkit-scrollbar { width: 6px; }
 .scroll-thin::-webkit-scrollbar-track { background: transparent; }

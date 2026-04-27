@@ -6,6 +6,14 @@ import PrizesCatalog from "./components/PrizesCatalog";
 import RedeemModal from "./components/RedeemModal";
 import RulesModal from "./components/RulesModal";
 import HistoryPanel from "./components/HistoryPanel";
+import DailySpinModal from "./components/DailySpinModal";
+import CatchHeartsModal from "./components/CatchHeartsModal";
+import {
+  canSpinToday,
+  heartsLeftToday,
+  registerSpin,
+  registerHeartsPlay,
+} from "./games/gameUtils";
 
 function haptic(pattern = 12) {
   try {
@@ -20,11 +28,18 @@ const USERS = [
   { id: "nicol", name: "Nicole", emoji: "🌸", accent: "rose" },
 ];
 
+const EMPTY_GAMES = {
+  santiago: { spinDate: null, heartsDate: null, heartsPlays: 0, heartsBest: 0 },
+  nicol: { spinDate: null, heartsDate: null, heartsPlays: 0, heartsBest: 0 },
+};
+
 export default function App() {
   const users = USERS;
-  const { points, history, persist, status, lastUpdatedBy } = useCoupleState();
+  const { points, history, games, persist, status, lastUpdatedBy } =
+    useCoupleState();
   const [pendingPrize, setPendingPrize] = useState(null);
   const [showRules, setShowRules] = useState(false);
+  const [activeGame, setActiveGame] = useState(null); // { kind, userId }
   const [toast, setToast] = useState(null);
 
   const userName = (id) => users.find((u) => u.id === id)?.name ?? "";
@@ -60,6 +75,14 @@ export default function App() {
             "remote-redeem"
           );
           haptic([24, 60, 30]);
+        } else if (latest.type === "game") {
+          showToast(
+            `${latest.emoji} ${userName(latest.userId)} jugó y ganó +${
+              latest.delta
+            }`,
+            "remote"
+          );
+          haptic(18);
         } else {
           showToast(
             `${userName(latest.userId)} sumó ${latest.emoji} +${latest.delta}`,
@@ -73,11 +96,10 @@ export default function App() {
   }, [history, lastUpdatedBy]);
 
   const pushEntry = (entry) => {
-    const nextHistory = [
+    return [
       { id: crypto.randomUUID(), at: Date.now(), ...entry },
       ...history,
     ].slice(0, 80);
-    return nextHistory;
   };
 
   const handleAdd = (userId) => (action) => {
@@ -93,7 +115,7 @@ export default function App() {
       delta: action.points,
       type: "action",
     });
-    persist(nextPoints, nextHistory);
+    persist({ points: nextPoints, history: nextHistory });
     showToast(`+${action.points} para ${userName(userId)}`);
   };
 
@@ -113,18 +135,84 @@ export default function App() {
       delta: -pendingPrize.cost,
       type: "redeem",
     });
-    persist(nextPoints, nextHistory);
+    persist({ points: nextPoints, history: nextHistory });
     showToast(`${userName(userId)} canjeó: ${pendingPrize.name}`, "redeem");
     setPendingPrize(null);
   };
 
+  const handleSpinResult = (userId, pts) => {
+    haptic([20, 40, 30]);
+    const nextPoints = {
+      ...points,
+      [userId]: (points[userId] ?? 0) + pts,
+    };
+    const nextHistory = pushEntry({
+      userId,
+      label: "Ruleta diaria",
+      emoji: "🎰",
+      delta: pts,
+      type: "game",
+    });
+    const nextGames = {
+      ...games,
+      [userId]: registerSpin(games?.[userId]),
+    };
+    persist({
+      points: nextPoints,
+      history: nextHistory,
+      games: nextGames,
+    });
+    showToast(`🎰 ${userName(userId)} ganó +${pts} en la ruleta`, "success");
+  };
+
+  const handleHeartsResult = (userId, pts) => {
+    const nextGames = {
+      ...games,
+      [userId]: registerHeartsPlay(games?.[userId], pts),
+    };
+    if (pts <= 0) {
+      persist({ games: nextGames });
+      showToast(
+        `💔 ${userName(userId)} no atrapó nada... ¡a intentarlo de nuevo!`,
+        "info"
+      );
+      return;
+    }
+    haptic([20, 50, 30]);
+    const nextPoints = {
+      ...points,
+      [userId]: (points[userId] ?? 0) + pts,
+    };
+    const nextHistory = pushEntry({
+      userId,
+      label: "Atrapa corazones",
+      emoji: "💖",
+      delta: pts,
+      type: "game",
+    });
+    persist({
+      points: nextPoints,
+      history: nextHistory,
+      games: nextGames,
+    });
+    showToast(`💖 ${userName(userId)} atrapó +${pts}`, "success");
+  };
+
   const resetAll = () => {
     if (!window.confirm("¿Reiniciar puntos e historial de ambos?")) return;
-    persist({ santiago: 0, nicol: 0 }, []);
+    persist({
+      points: { santiago: 0, nicol: 0 },
+      history: [],
+      games: EMPTY_GAMES,
+    });
     showToast("Todo reiniciado", "info");
   };
 
-  const clearHistory = () => persist(points, []);
+  const clearHistory = () => persist({ history: [] });
+
+  const activeUser = activeGame
+    ? users.find((u) => u.id === activeGame.userId)
+    : null;
 
   return (
     <div className="min-h-screen px-4 py-5 sm:px-6 sm:py-8 lg:px-10 relative">
@@ -137,15 +225,26 @@ export default function App() {
         />
 
         <main className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-          {users.map((u) => (
-            <UserColumn
-              key={u.id}
-              user={u}
-              value={points[u.id] ?? 0}
-              onAdd={handleAdd(u.id)}
-              accent={u.accent}
-            />
-          ))}
+          {users.map((u) => {
+            const ug = games?.[u.id] ?? {};
+            return (
+              <UserColumn
+                key={u.id}
+                user={u}
+                value={points[u.id] ?? 0}
+                onAdd={handleAdd(u.id)}
+                accent={u.accent}
+                onSpin={() =>
+                  setActiveGame({ kind: "spin", userId: u.id })
+                }
+                onHearts={() =>
+                  setActiveGame({ kind: "hearts", userId: u.id })
+                }
+                canSpin={canSpinToday(ug)}
+                heartsLeft={heartsLeftToday(ug)}
+              />
+            );
+          })}
         </main>
 
         <PrizesCatalog
@@ -172,6 +271,22 @@ export default function App() {
       )}
 
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+
+      {activeGame?.kind === "spin" && activeUser && (
+        <DailySpinModal
+          user={activeUser}
+          onClose={() => setActiveGame(null)}
+          onResult={(pts) => handleSpinResult(activeGame.userId, pts)}
+        />
+      )}
+
+      {activeGame?.kind === "hearts" && activeUser && (
+        <CatchHeartsModal
+          user={activeUser}
+          onClose={() => setActiveGame(null)}
+          onResult={(pts) => handleHeartsResult(activeGame.userId, pts)}
+        />
+      )}
 
       {toast && <Toast toast={toast} />}
     </div>
@@ -272,7 +387,7 @@ function Toast({ toast }) {
   return (
     <div
       key={toast.id}
-      className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 animate-fadeIn pointer-events-none px-4 max-w-[92vw]"
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] animate-fadeIn pointer-events-none px-4 max-w-[92vw]"
     >
       <div
         className={[

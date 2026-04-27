@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { ACTIONS } from "../data/actions";
 
-export default function UserColumn({ user, value, onAdd, accent = "rose" }) {
+export default function UserColumn({
+  user,
+  value,
+  onAdd,
+  accent = "rose",
+  onSpin,
+  onHearts,
+  canSpin = true,
+  heartsLeft = 3,
+}) {
   const prev = useRef(value);
   const [delta, setDelta] = useState(null);
   const [animKey, setAnimKey] = useState(0);
@@ -100,6 +109,64 @@ export default function UserColumn({ user, value, onAdd, accent = "rose" }) {
           </button>
         ))}
       </div>
+
+      {(onSpin || onHearts) && (
+        <div className="pt-3 mt-1 border-t border-white/10">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-ink-200/70 mb-2">
+            Mini-juegos
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <MiniGameButton
+              icon="🎰"
+              label="Ruleta"
+              sub={canSpin ? "Disponible" : "Vuelve mañana"}
+              enabled={canSpin}
+              onClick={onSpin}
+            />
+            <MiniGameButton
+              icon="💖"
+              label="Corazones"
+              sub={heartsLeft > 0 ? `${heartsLeft}/3 hoy` : "Vuelve mañana"}
+              enabled={heartsLeft > 0}
+              onClick={onHearts}
+            />
+          </div>
+        </div>
+      )}
     </section>
+  );
+}
+
+function MiniGameButton({ icon, label, sub, enabled, onClick }) {
+  return (
+    <button
+      disabled={!enabled}
+      onClick={onClick}
+      className={[
+        "relative flex flex-col items-start gap-0.5 rounded-2xl px-3 py-2.5 min-h-[64px]",
+        "border text-left transition-all duration-200 touch-manipulation",
+        enabled
+          ? "bg-white/[0.05] border-white/10 hover:bg-white/[0.09] active:scale-[0.97] cursor-pointer"
+          : "bg-white/[0.02] border-white/5 opacity-55 cursor-not-allowed",
+      ].join(" ")}
+    >
+      <div className="flex items-center gap-2 w-full">
+        <span className="text-xl">{icon}</span>
+        <span className="text-sm font-semibold text-ink-50 truncate">
+          {label}
+        </span>
+      </div>
+      <span
+        className={[
+          "text-[10px] font-semibold uppercase tracking-wider",
+          enabled ? "text-ink-200/80" : "text-ink-200/50",
+        ].join(" ")}
+      >
+        {sub}
+      </span>
+      {enabled && (
+        <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-mint-soft animate-pulse" />
+      )}
+    </button>
   );
 }
