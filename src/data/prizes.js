@@ -1,0 +1,51 @@
+export const PRIZES = [
+  {
+    id: "comida_cita",
+    name: "Elegir la comida en la siguiente cita",
+    description: "El otro paga la cuenta, sin reclamos.",
+    cost: 100,
+    emoji: "🍽️",
+    tier: "Dulce",
+  },
+  {
+    id: "postre_cafe",
+    name: "Vale por postre o café",
+    description: "En el lugar favorito de quien canjea.",
+    cost: 200,
+    emoji: "☕",
+    tier: "Dulce",
+  },
+  {
+    id: "cita_sorpresa",
+    name: "Cita sorpresa",
+    description:
+      "El que NO canjea organiza una tarde completa: plan, lugar y logística.",
+    cost: 400,
+    emoji: "🎁",
+    tier: "Aventura",
+  },
+  {
+    id: "regalo_hobby",
+    name: "Regalo físico de un hobby",
+    description: "Un libro, algo de tecnología, un accesorio... algo que ame.",
+    cost: 600,
+    emoji: "📚",
+    tier: "Grande",
+  },
+  {
+    id: "experiencia",
+    name: "Restaurante de mantel o experiencia",
+    description: "Escape room, bolos, karting, restaurante fino...",
+    cost: 800,
+    emoji: "🥂",
+    tier: "Grande",
+  },
+  {
+    id: "glamping",
+    name: "VIAJE A GLAMPING",
+    description: "Escapada de fin de semana juntos: desconexión total.",
+    cost: 1000,
+    emoji: "🏕️",
+    tier: "Épico",
+  },
+];

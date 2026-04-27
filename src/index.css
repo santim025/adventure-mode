@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply font-sans antialiased text-ink-50;
+    background: linear-gradient(180deg, #0A0815 0%, #110E22 60%, #0A0815 100%);
+    min-height: 100vh;
+    /* iOS notch safe areas */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    /* Prevent pull-to-refresh bounce on mobile */
+    overscroll-behavior-y: contain;
+  }
+
+  /* Mobile touch polish */
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* iOS: avoid auto-zoom when focusing inputs */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Smooth focus ring */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-lilac-deep/60 ring-offset-0;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  }
+
+  .glass-strong {
+    @apply rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur-xl;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-medium
+      transition-all duration-200 active:scale-[0.97] select-none
+      min-h-[44px] touch-manipulation;
+  }
+
+  .btn-primary {
+    @apply text-ink-900 bg-gradient-to-br from-rose-soft to-lilac-soft shadow-glow
+      hover:-translate-y-0.5 hover:shadow-xl;
+  }
+
+  .btn-ghost {
+    @apply bg-white/[0.04] text-ink-50 border border-white/10 hover:bg-white/[0.08];
+  }
+
+  .btn-outline {
+    @apply border border-white/15 text-ink-50 hover:bg-white/[0.06];
+  }
+}
+
+/* ---------- Animated aurora background ---------- */
+.aurora {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -10;
+}
+
+.aurora__blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.55;
+  will-change: transform;
+  mix-blend-mode: screen;
+}
+
+.aurora__blob--rose {
+  width: 55vmin;
+  height: 55vmin;
+  left: -10vmin;
+  top: -12vmin;
+  background: radial-gradient(
+    closest-side,
+    rgba(232, 166, 182, 0.9),
+    rgba(232, 166, 182, 0) 70%
+  );
+  animation: auroraA 22s ease-in-out infinite;
+}
+
+.aurora__blob--lilac {
+  width: 60vmin;
+  height: 60vmin;
+  right: -14vmin;
+  top: -6vmin;
+  background: radial-gradient(
+    closest-side,
+    rgba(184, 154, 235, 0.9),
+    rgba(184, 154, 235, 0) 70%
+  );
+  animation: auroraB 28s ease-in-out infinite;
+}
+
+.aurora__blob--soft {
+  width: 70vmin;
+  height: 70vmin;
+  left: 20vmin;
+  bottom: -25vmin;
+  background: radial-gradient(
+    closest-side,
+    rgba(215, 198, 245, 0.75),
+    rgba(215, 198, 245, 0) 70%
+  );
+  animation: auroraC 34s ease-in-out infinite;
+  opacity: 0.45;
+}
+
+.aurora__grain {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 3px 3px;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+@keyframes auroraA {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(22vmin, 8vmin, 0) scale(1.1);
+  }
+  66% {
+    transform: translate3d(10vmin, 28vmin, 0) scale(0.95);
+  }
+}
+
+@keyframes auroraB {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(-18vmin, 18vmin, 0) scale(1.12);
+  }
+  66% {
+    transform: translate3d(-28vmin, 4vmin, 0) scale(0.92);
+  }
+}
+
+@keyframes auroraC {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-18vmin, -14vmin, 0) scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora__blob {
+    animation: none !important;
+  }
+}
+
+/* thin scrollbar for history */
+.scroll-thin::-webkit-scrollbar { width: 6px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+}
