@@ -55,15 +55,15 @@ export default function CatchHeartsModal({ user, onClose, onResult }) {
           emoji = "💕";
           value = 3;
         }
-        const duration = 3 + Math.random() * 2.2;
-        const x = 5 + Math.random() * 90;
+        const duration = 3.2 + Math.random() * 2;
+        const x = 10 + Math.random() * 80;
         const size =
           type === "gold"
-            ? 46
+            ? 52
             : type === "special"
-            ? 38
-            : 30 + Math.random() * 6;
-        const drift = (Math.random() - 0.5) * 60;
+            ? 44
+            : 36 + Math.random() * 6;
+        const drift = (Math.random() - 0.5) * 50;
         return [...h, { id, x, emoji, value, duration, size, drift, type }];
       });
     }, 320);
@@ -112,10 +112,17 @@ export default function CatchHeartsModal({ user, onClose, onResult }) {
     <div
       className="fixed inset-0 z-50 bg-gradient-to-br from-ink-900/95 via-ink-800/95 to-ink-900/95 backdrop-blur-md animate-fadeIn"
       onClick={phase === "intro" ? onClose : undefined}
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
     >
       <div
         className="relative w-full h-full flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        style={{ touchAction: "manipulation" }}
       >
         <div className="flex-none px-4 pt-4 pb-2 flex items-center gap-3">
           <div className="flex-1 min-w-0">
@@ -279,21 +286,34 @@ function Heart({ heart, onCatch, onEnd }) {
       : heart.type === "special"
       ? "drop-shadow(0 0 10px rgba(215,198,245,0.8))"
       : "drop-shadow(0 2px 4px rgba(0,0,0,0.3))";
+
+  const handleCatch = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCatch();
+  };
+
   return (
     <button
-      onClick={onCatch}
+      type="button"
+      onPointerDown={handleCatch}
       onAnimationEnd={onEnd}
-      aria-label={`Corazón +${heart.value}`}
-      className="heart-float absolute select-none active:scale-75 transition-transform p-2 leading-none"
+      aria-label="Corazón"
+      className="heart-float absolute select-none leading-none"
       style={{
         left: `${heart.x}%`,
         fontSize: `${heart.size}px`,
         animationDuration: `${heart.duration}s`,
         "--heart-drift": `${heart.drift}px`,
         filter: glow,
+        touchAction: "manipulation",
+        WebkitTapHighlightColor: "transparent",
+        padding: "14px",
       }}
     >
-      {heart.emoji}
+      <span aria-hidden className="block pointer-events-none">
+        {heart.emoji}
+      </span>
     </button>
   );
 }

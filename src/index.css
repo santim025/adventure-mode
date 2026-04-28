@@ -199,17 +199,21 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* Center the heart on its left% anchor */
+  transform: translate3d(-50%, 0, 0);
 }
 
 @keyframes heart-float-up {
   0% {
-    transform: translate3d(0, 0, 0) scale(0.4);
+    transform: translate3d(-50%, 0, 0) scale(0.5);
     opacity: 0;
   }
   12% {
     opacity: 1;
     transform: translate3d(
-        calc(var(--heart-drift, 0px) * 0.25),
+        calc(-50% + var(--heart-drift, 0px) * 0.25),
         -18vh,
         0
       )
@@ -217,11 +221,58 @@
   }
   85% {
     opacity: 1;
-    transform: translate3d(var(--heart-drift, 0px), -88vh, 0) scale(1);
+    transform: translate3d(
+        calc(-50% + var(--heart-drift, 0px)),
+        -88vh,
+        0
+      )
+      scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate3d(var(--heart-drift, 0px), -110vh, 0) scale(0.85);
+    transform: translate3d(
+        calc(-50% + var(--heart-drift, 0px)),
+        -110vh,
+        0
+      )
+      scale(0.85);
+  }
+}
+
+/* Use dynamic viewport units when supported (fixes iOS Safari URL bar) */
+@supports (height: 100dvh) {
+  @keyframes heart-float-up {
+    0% {
+      transform: translate3d(-50%, 0, 0) scale(0.5);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+      transform: translate3d(
+          calc(-50% + var(--heart-drift, 0px) * 0.25),
+          -18dvh,
+          0
+        )
+        scale(1);
+    }
+    85% {
+      opacity: 1;
+      transform: translate3d(
+          calc(-50% + var(--heart-drift, 0px)),
+          -88dvh,
+          0
+        )
+        scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate3d(
+          calc(-50% + var(--heart-drift, 0px)),
+          -110dvh,
+          0
+        )
+        scale(0.85);
+    }
   }
 }
 
