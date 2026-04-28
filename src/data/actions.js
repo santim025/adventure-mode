@@ -24,6 +24,14 @@ export const ACTIONS = [
       "Sacar un tema con sustancia que abra conversación real — más allá del típico \"hola, ¿qué haces?\".",
   },
   {
+    id: "cumplido",
+    label: "Cumplido / palabras lindas",
+    points: 15,
+    emoji: "🫶",
+    description:
+      "Decirle algo lindo específico: un cumplido genuino, reconocer algo que admiras o unas palabras que le alegren el día. Nada genérico — tiene que salir de verdad.",
+  },
+  {
     id: "propuesta_cita",
     label: "Propuesta de cita",
     points: 25,
