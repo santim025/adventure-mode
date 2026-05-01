@@ -1,5 +1,13 @@
 export const ACTIONS = [
   {
+    id: "otros",
+    label: "Otros",
+    points: 1,
+    emoji: "📌",
+    description:
+      "Cualquier otro detalle pequeño que no entra en las demás categorías pero suma.",
+  },
+  {
     id: "saludo",
     label: "Buenos días / noches",
     points: 2,
